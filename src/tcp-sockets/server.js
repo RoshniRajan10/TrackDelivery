@@ -3,8 +3,22 @@ const http = require("http");
 
 const express = require("express");
 const path = require("path");
-const app = express();
+const fs = require("fs");
 
+const app = express();
+const flutterPath = path.join(__dirname, "../../flutter_app/build/web");
+console.log("=== DEBUG ===");
+console.log("Flutter path:", flutterPath);
+console.log("Folder exists:", fs.existsSync(flutterPath));
+console.log(
+  "Index exists:",
+  fs.existsSync(path.join(flutterPath, "index.html")),
+);
+console.log(
+  "Files:",
+  fs.existsSync(flutterPath) ? fs.readdirSync(flutterPath) : "FOLDER NOT FOUND",
+);
+console.log("=============");
 const PORT = process.env.PORT || 8000;
 
 const clients = {};
