@@ -15,7 +15,7 @@ const pairs = {};
 app.use(express.static(path.join(__dirname, "../../flutter_app/build/web")));
 
 // Fallback to index.html for all routes (Flutter SPA)
-app.get("*", (req, res) => {
+app.get("/{*splat}", (req, res) => {
   res.sendFile(
     path.join(__dirname, "../../flutter_app/build/web", "index.html"),
   );
