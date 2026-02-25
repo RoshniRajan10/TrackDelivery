@@ -133,7 +133,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         int messageLength = _messageController.text.length;
 
                         // Example 3: Send multiple events in a loop
-                        for (int i = 0; i < 1000; i++) {
+                        for (int i = 0; i < 500; i++) {
                           // The `i` variable is your index (0, 1, 2, 3, 4)
                           await FirebaseAnalytics.instance.logEvent(
                             name: 'message_sent',
@@ -153,7 +153,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             },
                           );
                           await Future.delayed(
-                              const Duration(milliseconds: 50));
+                              const Duration(milliseconds: 20));
                         }
 
                         if (context.mounted) {

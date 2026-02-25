@@ -5,9 +5,14 @@ import 'screens/login_screen.dart';
 import 'services/chat_provider.dart';
 import 'firebase_options.dart';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 Future<void> main() async {
   // Ensure widgets binding is initialized before Firebase
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load the .env file
+  await dotenv.load(fileName: ".env");
 
   // Initialize Firebase using the generated options
   await Firebase.initializeApp(
