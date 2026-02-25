@@ -51,7 +51,25 @@ const server = http.createServer(app);
 // Create WebSocket server
 const wss = new WebSocket.Server({ server });
 
+// Keep connections alive with heartbeat
+const heartbeatInterval = setInterval(() => {
+  wss.clients.forEach((ws) => {
+    if (ws.isAlive === false) {
+      ws.terminate();
+      return;
+    }
+    ws.isAlive = false;
+    ws.ping();
+  });
+}, 25000); // ping every 25 seconds
+
+wss.on("close", () => clearInterval(heartbeatInterval));
+
 wss.on("connection", (ws) => {
+  ws.isAlive = true;
+  ws.on("pong", () => {
+    ws.isAlive = true;
+  });
   let clientId = null;
   console.log("New WebSocket connection");
 
