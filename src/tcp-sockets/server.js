@@ -1,23 +1,38 @@
 const WebSocket = require("ws");
 const http = require("http");
 
+const express = require("express");
+const path = require("path");
+const app = express();
+
 const PORT = process.env.PORT || 8000;
 
 const clients = {};
 const roles = {};
 const pairs = {};
 
-// Create HTTP server for WebSocket upgrade
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { "Content-Type": "application/json" });
-  res.end(
-    JSON.stringify({
-      status: "ok",
-      service: "TrackMate WebSocket Server",
-      connections: Object.keys(clients).length,
-    }),
+// Serve Flutter web build
+app.use(express.static(path.join(__dirname, "../../flutter_app/build/web")));
+
+// Fallback to index.html for all routes (Flutter SPA)
+app.get("*", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "../../flutter_app/build/web", "index.html"),
   );
 });
+
+const server = http.createServer(app);
+// Create HTTP server for WebSocket upgrade
+// const server = http.createServer((req, res) => {
+//   res.writeHead(200, { "Content-Type": "application/json" });
+//   res.end(
+//     JSON.stringify({
+//       status: "ok",
+//       service: "TrackMate WebSocket Server",
+//       connections: Object.keys(clients).length,
+//     }),
+//   );
+// });
 
 // Create WebSocket server
 const wss = new WebSocket.Server({ server });
