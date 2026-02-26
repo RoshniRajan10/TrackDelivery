@@ -12,7 +12,13 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Load the .env file
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+    print('=== ENV LOADED ===');
+    print('SERVER_URL: ${dotenv.env['SERVER_URL']}'); // ← add this
+  } catch (e) {
+    print('=== ENV LOAD FAILED: $e ==='); // ← catch failure
+  }
 
   // Initialize Firebase using the generated options
   await Firebase.initializeApp(
