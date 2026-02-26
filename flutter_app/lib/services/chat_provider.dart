@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ChatMessage {
@@ -22,13 +23,14 @@ class ChatProvider with ChangeNotifier {
   String _status = 'Disconnected';
   String? _myId;
   String? _role;
-  
+
   // Replace with your actual server URL (use appropriate IP for physical device)
   // For Android emulator use 10.0.2.2, for iOS simulator use localhost
-  final String _serverUrl = 'ws://localhost:8000'; 
-
+  // final String _serverUrl = 'ws://localhost:8000';
+  String get _serverUrl => dotenv.env['SERVER_URL'] ?? 'ws://localhost:8000';
   List<String> get activePartners => _messages.keys.toList();
-  List<ChatMessage> getMessagesFor(String partnerId) => _messages[partnerId] ?? [];
+  List<ChatMessage> getMessagesFor(String partnerId) =>
+      _messages[partnerId] ?? [];
   String get status => _status;
   String? get myId => _myId;
   String? get role => _role;
@@ -61,7 +63,6 @@ class ChatProvider with ChangeNotifier {
 
       // Register immediately after connection
       _register(id, role);
-
     } catch (e) {
       _status = 'Connection Failed: $e';
       notifyListeners();
@@ -85,10 +86,10 @@ class ChatProvider with ChangeNotifier {
       // { type: 'pair', customerId: 'C001', deliveryBoyId: 'DB001' }
       // It doesn't seem to care who sends it, just that the mapping is created.
       // So we need to know who is who.
-      
+
       String cId = '';
       String dbId = '';
-      
+
       if (_role == 'customer') {
         cId = myId;
         dbId = partnerId;
@@ -116,7 +117,7 @@ class ChatProvider with ChangeNotifier {
     if (_channel != null && text.isNotEmpty) {
       String cId = '';
       String dbId = '';
-      
+
       if (_role == 'customer') {
         cId = _myId ?? '';
         dbId = partnerId;
@@ -155,19 +156,19 @@ class ChatProvider with ChangeNotifier {
       switch (type) {
         case 'registered':
           _status = 'Registered as $_role';
-           notifyListeners();
+          notifyListeners();
           break;
-         case 'paired':
-           if (parsed['message'] != null) {
-             final msg = parsed['message'] as String;
-             _status = msg;
-           }
-           notifyListeners();
+        case 'paired':
+          if (parsed['message'] != null) {
+            final msg = parsed['message'] as String;
+            _status = msg;
+          }
+          notifyListeners();
           break;
         case 'message':
           final from = parsed['from'] ?? 'Unknown';
           if (!_messages.containsKey(from)) {
-             _messages[from] = [];
+            _messages[from] = [];
           }
           _messages[from]!.add(ChatMessage(
             text: parsed['text'],
@@ -177,11 +178,11 @@ class ChatProvider with ChangeNotifier {
           ));
           notifyListeners();
           break;
-         case 'error':
-           // We'll just update status instead of mixing errors into messages
-           _status = 'Error: ${parsed['message']}';
-           notifyListeners();
-           break;
+        case 'error':
+          // We'll just update status instead of mixing errors into messages
+          _status = 'Error: ${parsed['message']}';
+          notifyListeners();
+          break;
         case 'location_update':
           // Optionally handle location updates if needed in chat
           break;
@@ -190,7 +191,7 @@ class ChatProvider with ChangeNotifier {
       debugPrint('Error parsing message: $e');
     }
   }
-  
+
   @override
   void dispose() {
     _channel?.sink.close();
