@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -27,7 +28,14 @@ class ChatProvider with ChangeNotifier {
   // Replace with your actual server URL (use appropriate IP for physical device)
   // For Android emulator use 10.0.2.2, for iOS simulator use localhost
   // final String _serverUrl = 'ws://localhost:8000';
-  String get _serverUrl => dotenv.env['SERVER_URL'] ?? 'ws://localhost:8000';
+  // String get _serverUrl => dotenv.env['SERVER_URL'] ?? 'ws://localhost:8000';
+  String get _serverUrl {
+    if (kIsWeb) {
+      return 'wss://trackdelivery-production.up.railway.app';
+    }
+    return dotenv.env['SERVER_URL'] ?? 'ws://localhost:8000';
+  }
+
   List<String> get activePartners => _messages.keys.toList();
   List<ChatMessage> getMessagesFor(String partnerId) =>
       _messages[partnerId] ?? [];
